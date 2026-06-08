@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+*.tsbuildinfo
+
+# Test / coverage
+coverage
+
+# Editor / IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Env / secrets (never commit credentials or keys)
+.env
+.env.*
+
+# Local design docs (internal)
+docs
