@@ -1,0 +1,57 @@
+{
+	"name": "n8n-nodes-google-vertex-ai",
+	"version": "0.1.0",
+	"description": "Community n8n node for Google Vertex AI (Gemini text, multimodal analysis, Nano Banana image generation/editing, and Veo video). Unofficial, not affiliated with Google.",
+	"license": "MIT",
+	"homepage": "https://github.com/I-am-akash-dwivedi/n8n-nodes-google-vertex-ai#readme",
+	"keywords": [
+		"n8n-community-node-package"
+	],
+	"author": {
+		"name": "Akash",
+		"email": "akash21dwivedi@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/I-am-akash-dwivedi/n8n-nodes-google-vertex-ai.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease",
+		"test": "jest"
+	},
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"credentials": [
+			"dist/credentials/GoogleVertexAiApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/GoogleVertexAi/GoogleVertexAi.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"@types/jest": "^29.5.12",
+		"eslint": "9.29.0",
+		"jest": "^29.7.0",
+		"n8n": "*",
+		"prettier": "3.8.3",
+		"release-it": "20.2.0",
+		"ts-jest": "^29.1.4",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
