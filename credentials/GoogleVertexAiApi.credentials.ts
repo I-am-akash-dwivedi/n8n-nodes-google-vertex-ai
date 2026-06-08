@@ -1,4 +1,16 @@
-import { ICredentialType, INodeProperties, Icon } from 'n8n-workflow';
+import type {
+	IAuthenticateGeneric,
+	ICredentialDataDecryptedObject,
+	ICredentialTestRequest,
+	ICredentialType,
+	IDataObject,
+	IHttpRequestHelper,
+	Icon,
+	INodeProperties,
+} from 'n8n-workflow';
+import { signJwt, formatPrivateKey, TOKEN_URL } from '../nodes/GoogleVertexAi/helpers/utils';
+
+interface TokenResponse { access_token: string }
 
 export class GoogleVertexAiApi implements ICredentialType {
 	name = 'googleVertexAiApi';
@@ -55,4 +67,49 @@ export class GoogleVertexAiApi implements ICredentialType {
 			description: 'The private key of the service account (including the BEGIN/END lines)',
 		},
 	];
+
+	// Mints a Google OAuth2 access token from the service-account key (JWT-bearer
+	// grant) before requests run. A failure here (bad key/email) surfaces as a
+	// failed credential test. The token is exposed to `authenticate` and `test`
+	// via `$credentials.accessToken`.
+	async preAuthentication(
+		this: IHttpRequestHelper,
+		credentials: ICredentialDataDecryptedObject,
+	): Promise<IDataObject> {
+		const email = credentials.clientEmail as string;
+		const privateKey = formatPrivateKey(credentials.privateKey as string);
+		const assertion = signJwt(email, privateKey, Math.floor(Date.now() / 1000));
+
+		const res = await this.helpers.httpRequest({
+			method: 'POST',
+			url: TOKEN_URL,
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: new URLSearchParams({
+				grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+				assertion,
+			}).toString(),
+		});
+		const data = (typeof res === 'string' ? JSON.parse(res) : res) as TokenResponse;
+		return { accessToken: data.access_token };
+	}
+
+	authenticate: IAuthenticateGeneric = {
+		type: 'generic',
+		properties: {
+			headers: {
+				Authorization: '=Bearer {{$credentials.accessToken}}',
+			},
+		},
+	};
+
+	// Lists Google's Model Garden publisher models — a lightweight authenticated
+	// GET that confirms the minted token works against Vertex AI. Uses the global
+	// service host (publisher models are global resources), so the test validates
+	// the service-account key independently of the selected region.
+	test: ICredentialTestRequest = {
+		request: {
+			baseURL: 'https://aiplatform.googleapis.com',
+			url: '/v1/publishers/google/models',
+		},
+	};
 }

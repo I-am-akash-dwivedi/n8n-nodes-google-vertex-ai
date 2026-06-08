@@ -3,12 +3,11 @@ import { GoogleVertexAi } from './GoogleVertexAi.node';
 describe('GoogleVertexAi node', () => {
   const node = new GoogleVertexAi();
 
-  it('declares the googleVertexAiApi credential (tested by a node method) and a model search method', () => {
+  it('declares the googleVertexAiApi credential and a model search method', () => {
     expect(node.description.credentials).toEqual([
-      { name: 'googleVertexAiApi', required: true, testedBy: 'googleVertexAiApiTest' },
+      { name: 'googleVertexAiApi', required: true },
     ]);
     expect(node.methods.listSearch.modelSearch).toBeDefined();
-    expect(node.methods.credentialTest.googleVertexAiApiTest).toBeDefined();
   });
 
   it('exposes all five resources', () => {

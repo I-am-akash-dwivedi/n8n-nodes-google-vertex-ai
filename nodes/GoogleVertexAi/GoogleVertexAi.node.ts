@@ -9,7 +9,6 @@ import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 import { versionDescription } from './actions/versionDescription';
 import { resolveOperation } from './actions/router';
 import * as listSearch from './methods/listSearch';
-import { googleVertexAiApiTest } from './methods/credentialTest';
 
 export class GoogleVertexAi implements INodeType {
   description: INodeTypeDescription = {
@@ -17,12 +16,13 @@ export class GoogleVertexAi implements INodeType {
     icon: 'file:googleVertexAi.svg',
     subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
     usableAsTool: true,
-    credentials: [{ name: 'googleVertexAiApi', required: true, testedBy: 'googleVertexAiApiTest' }],
+    // The credential test lives on the credential itself (declarative test +
+    // preAuthentication); see GoogleVertexAiApi.credentials.ts.
+    credentials: [{ name: 'googleVertexAiApi', required: true }],
   };
 
   methods = {
     listSearch,
-    credentialTest: { googleVertexAiApiTest },
   };
 
   async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
