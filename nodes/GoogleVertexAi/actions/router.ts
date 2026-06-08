@@ -1,5 +1,5 @@
-import type { IExecuteFunctions, INodeExecutionData, JsonObject } from 'n8n-workflow';
-import { NodeApiError, NodeOperationError } from 'n8n-workflow';
+import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import * as textMessage from './text/message.operation';
 import * as imageAnalyze from './image/analyze.operation';
 import * as imageGenerate from './image/generate.operation';
@@ -12,7 +12,7 @@ import * as videoGenerate from './video/generate.operation';
 import * as videoStatus from './video/status.operation';
 import * as videoDownload from './video/download.operation';
 
-type OpExecute = (this: IExecuteFunctions, i: number) => Promise<INodeExecutionData[]>;
+export type OpExecute = (this: IExecuteFunctions, i: number) => Promise<INodeExecutionData[]>;
 
 const operations: Record<string, Record<string, OpExecute>> = {
   text: { message: textMessage.execute },
@@ -27,30 +27,22 @@ const operations: Record<string, Record<string, OpExecute>> = {
   },
 };
 
-export async function router(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-  const items = this.getInputData();
-  const resource = this.getNodeParameter('resource', 0) as string;
-  const operation = this.getNodeParameter('operation', 0) as string;
-
+/**
+ * Resolves the operation executor for the selected resource/operation, throwing a
+ * NodeOperationError if the combination is not supported. The per-item loop and
+ * continueOnFail handling live in the node's execute() method.
+ */
+export function resolveOperation(
+  ctx: IExecuteFunctions,
+  resource: string,
+  operation: string,
+): OpExecute {
   const execute = operations[resource]?.[operation];
   if (!execute) {
-    throw new NodeOperationError(this.getNode(), `Unsupported operation "${operation}" for resource "${resource}"`);
+    throw new NodeOperationError(
+      ctx.getNode(),
+      `Unsupported operation "${operation}" for resource "${resource}"`,
+    );
   }
-
-  const returnData: INodeExecutionData[] = [];
-  for (let i = 0; i < items.length; i++) {
-    try {
-      const results = await execute.call(this, i);
-      returnData.push(...results.map((item) => ({ ...item, pairedItem: { item: i } })));
-    } catch (error) {
-      if (this.continueOnFail()) {
-        returnData.push({ json: { error: (error as Error).message }, pairedItem: { item: i } });
-        continue;
-      }
-      throw error instanceof NodeOperationError || error instanceof NodeApiError
-        ? error
-        : new NodeApiError(this.getNode(), error as JsonObject);
-    }
-  }
-  return [returnData];
+  return execute;
 }

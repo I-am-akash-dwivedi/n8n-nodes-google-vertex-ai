@@ -1,4 +1,7 @@
-/* eslint-disable n8n-nodes-base/node-filename-against-convention -- The node entry is GoogleVertexAi.node.ts; this file holds only the INodeTypeDescription, factored out for modularity. The rule assumes one inline node file. */
+/* eslint-disable n8n-nodes-base/node-filename-against-convention, n8n-nodes-base/node-class-description-missing-subtitle --
+   These n8n-nodes-base rules assume a single inline node file. The node entry is
+   GoogleVertexAi.node.ts (which defines icon, subtitle, credentials, and usableAsTool
+   on its description); this file only holds the shared property/field definitions. */
 import type { INodeTypeDescription } from 'n8n-workflow';
 import { commonFields, mediaInputFields, optionsCollection, imageModelField, imageOptionsCollection, imageInputCollection, videoModelField, videoOperationName, videoOutputField, videoOptionsCollection } from './descriptions';
 import * as textMessage from './text/message.operation';
@@ -14,15 +17,12 @@ import * as videoGenerate from './video/generate.operation';
 export const versionDescription: INodeTypeDescription = {
   displayName: 'Google Vertex AI',
   name: 'googleVertexAi',
-  icon: 'file:googleVertexAi.svg',
   group: ['transform'],
   version: 1,
-  subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
   description: 'Use Google Vertex AI (Gemini) for text, media analysis, and image generation/editing',
   defaults: { name: 'Google Vertex AI' },
   inputs: ['main'],
   outputs: ['main'],
-  credentials: [{ name: 'googleVertexAiApi', required: true, testedBy: 'googleVertexAiApiTest' }],
   properties: [
     {
       displayName: 'Resource',

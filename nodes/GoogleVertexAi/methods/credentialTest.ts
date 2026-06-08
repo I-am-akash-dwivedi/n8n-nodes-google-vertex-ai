@@ -22,8 +22,11 @@ export async function googleVertexAiApiTest(
     const nowSec = Math.floor(Date.now() / 1000);
     const assertion = signJwt(clientEmail, privateKey, nowSec);
 
-    // eslint-disable-next-line @n8n/community-nodes/no-deprecated-workflow-functions -- ICredentialTestFunctions only exposes `this.helpers.request`; `httpRequest` is not available in the credential-test context.
-    const res = await this.helpers.request({
+    // The credential-test context (ICredentialTestFunctions) only exposes
+    // `helpers.request` — there is no `httpRequest` here — so we bind helpers
+    // locally and use the single HTTP helper this context provides.
+    const { helpers } = this;
+    const res = await helpers.request({
       method: 'POST',
       url: TOKEN_URL,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

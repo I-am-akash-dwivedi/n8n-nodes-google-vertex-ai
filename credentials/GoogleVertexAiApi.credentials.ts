@@ -1,6 +1,5 @@
 import { ICredentialType, INodeProperties, Icon } from 'n8n-workflow';
 
-// eslint-disable-next-line @n8n/community-nodes/credential-test-required -- Tested at runtime via the node's `googleVertexAiApiTest` credentialTest method (see GoogleVertexAi.node.ts, wired through `testedBy` on the node's credentials entry). This rule only detects credential tests declared inline in a node's description object literal; this node intentionally factors its description into versionDescription.ts.
 export class GoogleVertexAiApi implements ICredentialType {
 	name = 'googleVertexAiApi';
 	displayName = 'Google Vertex AI API';
