@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-google-vertex-ai",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Community n8n node for Google Vertex AI (Gemini text, multimodal analysis, Nano Banana image generation/editing, and Veo video). Unofficial, not affiliated with Google.",
 	"license": "MIT",
 	"homepage": "https://github.com/I-am-akash-dwivedi/n8n-nodes-google-vertex-ai#readme",
