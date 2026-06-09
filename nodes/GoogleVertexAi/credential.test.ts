@@ -9,7 +9,8 @@ describe('GoogleVertexAiApi credential', () => {
   const cred = new GoogleVertexAiApi();
 
   it('declares a declarative credential test against Vertex AI', () => {
-    expect(cred.test.request.url).toBe('/v1/publishers/google/models');
+    expect(cred.test.request.method).toBe('POST');
+    expect(cred.test.request.url).toContain(':countTokens');
     expect(cred.test.request.baseURL).toContain('aiplatform.googleapis.com');
   });
 

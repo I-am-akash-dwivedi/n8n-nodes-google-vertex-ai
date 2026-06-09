@@ -66,6 +66,16 @@ export class GoogleVertexAiApi implements ICredentialType {
 			placeholder: '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----',
 			description: 'The private key of the service account (including the BEGIN/END lines)',
 		},
+		{
+			// Holds the OAuth2 access token minted by preAuthentication. n8n only
+			// runs preAuthentication when a hidden, expirable property like this
+			// exists; the token is re-minted when empty or after a 401.
+			displayName: 'Access Token',
+			name: 'accessToken',
+			type: 'hidden',
+			typeOptions: { password: true, expirable: true },
+			default: '',
+		},
 	];
 
 	// Mints a Google OAuth2 access token from the service-account key (JWT-bearer
@@ -102,14 +112,22 @@ export class GoogleVertexAiApi implements ICredentialType {
 		},
 	};
 
-	// Lists Google's Model Garden publisher models — a lightweight authenticated
-	// GET that confirms the minted token works against Vertex AI. Uses the global
-	// service host (publisher models are global resources), so the test validates
-	// the service-account key independently of the selected region.
+	// Validates the credential against the exact request path the node uses at
+	// runtime (see buildVertexUrl): a free `:countTokens` call on a Gemini
+	// publisher model. This confirms the minted token, project, region, and
+	// Vertex AI access all work together. The host has no region prefix for
+	// "global". The model below must be one that is live in Vertex AI; if it is
+	// ever retired, update it to a current Gemini model.
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: 'https://aiplatform.googleapis.com',
-			url: '/v1/publishers/google/models',
+			method: 'POST',
+			baseURL:
+				'=https://{{$credentials.region === "global" ? "" : $credentials.region + "-"}}aiplatform.googleapis.com',
+			url: '=/v1/projects/{{$credentials.projectId}}/locations/{{$credentials.region}}/publishers/google/models/gemini-3.5-flash:countTokens',
+			body: {
+				contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
+			},
+			json: true,
 		},
 	};
 }
